@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.views.generic import View
 from django.shortcuts import render
@@ -10,8 +9,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
 
-from api.models import Accomplishment, Indicator, Measurement
-from api.serializers import AccomplishmentSerializer, IndicatorSerializer, MeasurementSerializer
+from api.models import Accomplishment, Baseline, Indicator, Measurement
+from api.serializers import AccomplishmentSerializer, BaselineSerializer, IndicatorSerializer, MeasurementSerializer
 
 
 class AccomplishmentApiView(APIView):    
@@ -28,7 +27,7 @@ class AccomplishmentApiView(APIView):
 
         if not serializer.is_valid():
             return Response(
-                {"status" : "Error","data" : serializer.errors},
+                {"status" : "Error", "data" : serializer.errors},
                 status = status.HTTP_400_BAD_REQUEST
             )
         serializer.save()
@@ -91,7 +90,7 @@ class IndicatorApiView(APIView):
 
         if not serializer.is_valid():
             return Response(
-                {"status" : "Error","data" : serializer.errors},
+                {"status" : "Error", "data" : serializer.errors},
                 status = status.HTTP_400_BAD_REQUEST
             )
         serializer.save()
@@ -200,3 +199,67 @@ class MeasurementDetailApiView(APIView):
             {"status": "item deleted"},
             status = status.HTTP_204_NO_CONTENT
         )        
+
+
+class BaselineApiView(APIView):    
+    def get(self, request):
+        object_list = Baseline.objects.all()
+        serializer = BaselineSerializer(object_list, many=True)
+        return Response(
+            {"status" : "success", "data" : serializer.data},
+            status = status.HTTP_200_OK
+        )
+
+    def post(self, request):
+        serializer = BaselineSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                {"status" : "Error","data" : serializer.errors},
+                status = status.HTTP_400_BAD_REQUEST
+            )
+        serializer.save()
+        return Response(
+            {"status" : "success", "data" : serializer.data},
+            status = status.HTTP_201_CREATED
+        )
+
+
+class BaselineDetailApiView(APIView):
+    def get_baseline(self, pk):
+        baseline = get_object_or_404(Baseline, id=pk)
+        return baseline
+
+    def get(self, request, pk):
+        baseline_instance = self.get_baseline(pk)
+        serializer = BaselineSerializer(baseline_instance)
+        return Response(
+            {"status": "success", "data": serializer.data},
+            status = status.HTTP_200_OK
+        )
+
+    def put(self, request, pk):
+        baseline = self.get_baseline(pk)
+        if not baseline:
+            return Response(
+                {"status": "Object with that id does not exist"},
+                status = status.HTTP_400_BAD_REQUEST
+            )
+
+        serializers = BaselineSerializer(instance=baseline, data=request.data, partial=True)
+        serializers.is_valid(raise_exception=True)
+        serializers.save()
+        return Response(
+            {"status": "item updated", "data": serializers.data},
+            status = status.HTTP_200_OK
+        )
+
+    def delete(self, request, pk):
+        baseline = self.get_baseline(pk)
+        baseline.delete()
+        return Response(
+            {"status": "item deleted"},
+            status = status.HTTP_204_NO_CONTENT
+        )        
+
+

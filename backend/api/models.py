@@ -24,7 +24,7 @@ class Indicator(models.Model):
 
 # Quantitative data for all units of measurement perfomance quarterly for a year
 class Measurement(models.Model):
-    indicator = models.ForeignKey('Indicator', related_name='measurements', on_delete=models.CASCADE, null=True)
+    indicator = models.ForeignKey('Indicator', related_name='measurements', on_delete=models.CASCADE)
     name = models.TextField()
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, default=User)
 
@@ -35,13 +35,13 @@ class Measurement(models.Model):
 
 
 class Baseline(models.Model):
-    measurement = models.ForeignKey('Measurement', on_delete=models.CASCADE, null=True)
+    measurement = models.ForeignKey('Measurement', related_name='baselines', on_delete=models.CASCADE)
     items = models.TextField()
-    number_of_items = models.IntegerField()
+    count = models.IntegerField()
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, default=User)
 
     def __str__(self) -> str:
-        return self.items
+        return self.count
 
 
 # Detailed quarterly data per unit of measurement
@@ -52,7 +52,7 @@ class Quarter(models.Model):
         Work_in_progress = 'Work in Progress'
         Pending = 'Pending'
     title = models.CharField(max_length=50)
-    unit = models.ForeignKey('Measurement', on_delete=models.CASCADE, null=True)
+    unit = models.ForeignKey('Measurement', related_name='quarters', on_delete=models.CASCADE)
     items = models.TextField()
     progress = models.CharField(max_length=256)
     sub_programme_status = models.TextField(choices=Status.choices)
@@ -92,7 +92,7 @@ class Quarter(models.Model):
 
 
 class Target(models.Model):
-    quarter = models.ForeignKey('Quarter', on_delete=models.CASCADE, null=True)
+    quarter = models.ForeignKey('Quarter', related_name='targets', on_delete=models.CASCADE)
     target = models.IntegerField()
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, default=User)
 
