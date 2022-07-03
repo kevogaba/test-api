@@ -1,3 +1,6 @@
 from django.contrib import admin
+from api.models import Accomplishment, Indicator, Measurement
 
-# Register your models here.
+admin.site.register(Accomplishment)
+admin.site.register(Indicator)
+admin.site.register(Measurement)

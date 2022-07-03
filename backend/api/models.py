@@ -9,7 +9,7 @@ class Accomplishment(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, default=User)
     
     def __str__(self) -> str:
-        return self.accomplishment
+        return self.title
 
 
 # Table for Indicator
